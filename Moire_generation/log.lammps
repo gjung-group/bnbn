@@ -1,0 +1,181 @@
+LAMMPS (15 Sep 2022)
+  using 1 OpenMP thread(s) per MPI task
+
+# ---------- Initialize Simulation ---------------------
+units metal                                        #sets the style of units used in the simulation
+dimension 3                                        # dimension of the simulation
+boundary p p p                                     # p.b.c.
+atom_style full                                  #only the default values(coarse-grain liquids, solids, metals)
+
+
+
+# ---------- Create Atoms ---------------------
+#Try what can be the analogous input file if Bravais lattice is used (in 2D)
+
+#read_data TriG.mol
+read_data twist.mol
+Reading data file ...
+  triclinic box = (0 0 0) to (10.919042 9.4561676 35) with tilt (5.4595209 0 0)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  76 atoms
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:    0        0        0       
+  special bond factors coul:  0        0        0       
+     0 = max # of 1-2 neighbors
+     0 = max # of 1-3 neighbors
+     0 = max # of 1-4 neighbors
+     1 = max # of special neighbors
+  special bonds CPU = 0.000 seconds
+  read_data CPU = 0.003 seconds
+
+group membrane  type 1
+38 atoms in group membrane
+group adsorbate type 2
+38 atoms in group adsorbate
+#group membrane  id 1 5223 10271
+#
+#group membrane  id  2189:3282 #
+#group adsorbate type 2
+
+
+
+
+#--------------Input data (structure)--------------------------------
+#read_data hBN.lammps                                      # either in ASCII text or a gzipped text file(.gz as a suffix)
+
+
+#Turn on the pairwise and bonded interactions
+#Needed for the pair style tersoff
+newton on                                 #Turns on both bonded and non-bonded interactions (if two secified: first, for bonded and second is for non-bonded)
+
+
+
+# ---------- Define Interatomic Potential ---------------------
+#pair_style hybrid/overlay drip rebo
+#pair_coeff * * drip  C.drip     C
+#pair_coeff * * rebo CH.rebo C
+pair_style hybrid/overlay drip extep
+pair_coeff * * drip                BN.drip          B N
+pair_coeff  * * extep            BN.extep     B N
+Reading ExTeP potential file BN.extep with DATE: 2017-11-28
+
+
+#
+
+neighbor 2 bin                                      # Every few time steps rebuild the neighbor list (skin thickness) , binning
+neigh_modify every 10 delay 0 check yes                # Checks every time steps (whether any atom has gone beyond)
+#neighbor        2.0 bin
+#neigh_modify    every 1
+#neigh_modify    delay 0
+#neigh_modify    check yes
+
+## calculate the COM
+variable        adsxcom equal xcm(adsorbate,x)
+variable        adsycom equal xcm(adsorbate,y)
+variable        adszcom equal xcm(adsorbate,z)
+variable        adsvxcom equal vcm(adsorbate,x)
+variable        adsvycom equal vcm(adsorbate,y)
+variable        adsvzcom equal vcm(adsorbate,z)
+
+#### Simulation settings ####
+timestep  0.001
+#velocity  adsorbate create 300.0 12345
+#fix       1 membrane setforce 0.0 0.0 0.0
+#fix       thermostat all nve
+
+#compute   0 all pair rebo
+#compute   1 all pair drip
+#variable  REBO     equal c_0
+#variable  ILP      equal c_1
+#
+#############################
+#
+## Output
+#thermo          100
+#thermo_style    custom step etotal pe ke v_REBO v_ILP temp v_adsxcom v_adsycom v_adszcom v_adsvxcom v_adsvycom v_adsvzcom
+#thermo_modify   line one format float %.10f
+#thermo_modify   flush yes norm no lost warn
+#
+#write_dump all atom dump_relaxExp.Before
+
+# ---------- Run Minimization ---------------------
+reset_timestep 0
+ # # fix 1 all box/relax iso 0.0 vmax 0.00
+thermo 10
+min_style cg
+#dump            1 all custom 1  dump.relax.* id type mass xu yu z
+#dump dumpMovie all movie 10 movie.avi type type size 640 480
+#
+dump 2 all custom 100 dump.minimization id type x y z ix iy iz
+dump_modify 2 format float %20.15g sort id
+
+minimize          0.0 1.0e-3 500000 500000
+Switching to 'neigh_modify every 1 delay 0 check yes' setting during minimization
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 17.7
+  ghost atom cutoff = 17.7
+  binsize = 8.85, bins = 2 2 4
+  2 neighbor lists, perpetual/occasional/extra = 2 0 0
+  (1) pair drip, perpetual
+      attributes: full, newton on, ghost
+      pair build: full/bin/ghost
+      stencil: full/ghost/bin/3d
+      bin: standard
+  (2) pair extep, perpetual, trim from (1)
+      attributes: full, newton on, ghost, cut 4.2
+      pair build: trim
+      stencil: none
+      bin: none
+Per MPI rank memory allocation (min/avg/max) = 9.593 | 9.593 | 9.593 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+         0   0             -509.74013      0             -509.74013     -722.79116    
+        10   0             -509.81335      0             -509.81335     -990.18851    
+        20   0             -509.81338      0             -509.81338     -984.67414    
+        30   0             -509.81339      0             -509.81339     -981.47175    
+        40   0             -509.81339      0             -509.81339     -981.17095    
+Loop time of 0.317986 on 1 procs for 40 steps with 76 atoms
+
+99.6% CPU use with 1 MPI tasks x 1 OpenMP threads
+
+Minimization stats:
+  Stopping criterion = force tolerance
+  Energy initial, next-to-last, final = 
+     -509.740128539434  -509.813391868164  -509.813391881537
+  Force two-norm initial, final = 1.8153024 0.0006476833
+  Force max component initial, final = 0.27167998 0.00013279463
+  Final line search alpha, max atom move = 1 0.00013279463
+  Iterations, force evaluations = 40 80
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.31598    | 0.31598    | 0.31598    |   0.0 | 99.37
+Bond    | 5.171e-06  | 5.171e-06  | 5.171e-06  |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0.0012645  | 0.0012645  | 0.0012645  |   0.0 |  0.40
+Output  | 4.5638e-05 | 4.5638e-05 | 4.5638e-05 |   0.0 |  0.01
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.0006957  |            |       |  0.22
+
+Nlocal:             76 ave          76 max          76 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:           3332 ave        3332 max        3332 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:              0 ave           0 max           0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+FullNghs:        54392 ave       54392 max       54392 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 54392
+Ave neighs/atom = 715.68421
+Ave special neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+#
+#running the simulation
+print "All done!"
+All done!
+Total wall time: 0:00:00

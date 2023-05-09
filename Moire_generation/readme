@@ -1,0 +1,14 @@
+The following work describes the construction of a commensurate twisted bilayer Boron Nitride supercell, based on the 2012 study "Periodic overlayers and moiré patterns: theoretical studies of geometric properties" published in the journal J. Phys.: Condens. Matter 24 314210.
+
+The code used for generating the structure information includes the following files:
+
+1:Gen.f90: This code generates the commensurate twist angle (13.17). To use the code, compile it with gfortran (gfortran Gen.f90 > ./a.out), and the output files will provide the structure information (BLBL.mol, BLBL.frac, and moire.fdf). You can modify any of these files and use them for the lammps relaxation.
+
+2:twist.mol: This file provides an example of a full type relaxation in the lammps calculation.
+
+3:lammps.in: This is the lammps input file used for relaxation.
+
+4:dump.minimization: This file contains the output structure after relaxation.
+
+5:log.lammps: This file contains the lammps log.
+
