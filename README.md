@@ -5,10 +5,6 @@ This work describes the calculation of the electronic band structure of twisted 
 
 2:TB_band_example: This folder contains the code for calculating the band structure of t2BN with a commensurate twist angle (t2BN).
 
-For any inquiries, please contact the author:
-
-Fengpingli: lifengping0109@gmail.com
-
 Note that the full band structure calculation dataset used for this paper is available upon request.
 
 
