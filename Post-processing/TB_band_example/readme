@@ -1,0 +1,15 @@
+This work presents a band structure calculation for a twisted bilayer Boron Nitride supercell using a full tight-binding model. The code used for this calculation includes:
+
+1:band.py: This is the input file for the tight-binding calculation, based on the QUEST model.
+
+2:tB/tN/bB/bN: These files contain the coordinates of the top layer Boron atoms, top layer Nitrid atoms, bottom layer Boron atoms, and bottom Nitrid atoms.
+
+3:onsite: This file contains the onsite energy for each atom.
+
+4:eigvals_on: This file contains the output eigenvalues of the band structures.
+
+5:plot_band.py: This code is used to plot the band structure using the eigenvalue data.
+
+Note that the QUEST code will be made public at a later time.
+
+
