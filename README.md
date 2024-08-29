@@ -1,4 +1,4 @@
-This work presents the calculation of the electronic band structure of twisted bilayer boron nitride (tBN) using a full tight-binding model within a commensurate bilayer boron nitride (cBN) configuration. The code used for this calculation is organized into the following sections:
+This work presents the calculation of the electronic band structure of twisted bilayer boron nitride (tBN) using a full tight-binding model within a commensurate twisted bilayer boron nitride (t2BN) configuration. The code used for this calculation is organized into the following sections:
 
 Moiré Generation: This directory contains the code for constructing the twisted bilayer BN using the genmoire package and includes an example of structural relaxation using LAMMPS.
 
